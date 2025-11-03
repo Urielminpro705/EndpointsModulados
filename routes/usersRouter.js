@@ -4,6 +4,35 @@ const usersServices = require("../services/usersServices");
 const router = express.Router();
 const service = new usersServices();
 
+/**
+ * @swagger
+ * /users:
+ *  get:
+ *      summary: Obtiene una lista de usuarios
+ *      responses:
+ *          200:
+ *              description: Lista de usuarios
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: array
+ *                                  items:
+ *                                      type: object
+ *                                      properties:
+ *                                          id:
+ *                                              type: number
+ *                                          name:
+ *                                              type: string
+ *                                          userName:
+ *                                              type: string
+ *                                          password:
+ *                                              type: string
+ */
 router.get("/", (req, res) => {
     const response = service.getAllUsers();
 
@@ -13,6 +42,40 @@ router.get("/", (req, res) => {
     })
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *  get:
+ *      summary: Obtiene un usuario por id
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              required: true
+ *              description: ID del usuario
+ *              schema:
+ *                  type: number
+ *      responses:
+ *          200:
+ *              description: Usuario por id
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      id:
+ *                                          type: number
+ *                                      name:
+ *                                          type: string
+ *                                      userName:
+ *                                          type: string
+ *                                      password:
+ *                                          type: string
+ */
 router.get("/:id", (req, res) => {
     const { id } = req.params;
     const response = service.getUserById(id);
@@ -23,6 +86,58 @@ router.get("/:id", (req, res) => {
     })
 });
 
+/**
+ * @swagger
+ * /users:
+ *  post:
+ *      summary: Crear un nuevo usuario
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          name:
+ *                              type: string
+ *                          userName:
+ *                              type: string
+ *                          password:
+ *                              type: string
+ *      responses:
+ *          201:
+ *              description: Se creo el usuario
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      id: 
+ *                                          type: number
+ *                                      name:
+ *                                          type: string   
+ *                                      userName:
+ *                                          type: string
+ *                                      password:
+ *                                          type: string
+ *          400:
+ *              description: Faltan atributos
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  example: {}                            
+ */
 router.post("/", (req, res) => {
     const response = service.createUser(req.body);
 
@@ -32,6 +147,65 @@ router.post("/", (req, res) => {
     })
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *  patch:
+ *      summary: Actualizar valores de un usuario por ID
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              required: true
+ *              description: Id del usuario
+ *              schema:
+ *                  type: number
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          name:
+ *                              type: string
+ *                          userName:
+ *                              type: string
+ *                          password:
+ *                              type: string
+ *      responses:
+ *          200:
+ *              description: Se actualizó el usuario
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      id:
+ *                                          type: number
+ *                                      name:
+ *                                          type: string
+ *                                      userName:
+ *                                          type: string
+ *                                      password:
+ *                                          type: string
+ *          404:
+ *              description: No se encontro el usuario
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  example: {}
+ */
 router.patch("/:id", (req, res) => {
     const { id } = req.params;
     const response = service.updateUser(id, req.body);
@@ -42,6 +216,46 @@ router.patch("/:id", (req, res) => {
     })
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *  delete:
+ *      summary: Eliminar un usuario por ID
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              required: true
+ *              description: Id del usuario
+ *              schema:
+ *                  type: number
+ *      responses:
+ *          200:
+ *              description: Se eliminó el usuario
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      id:
+ *                                          type: number     
+ *          404:
+ *              description: No se encontro el usuario
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              message:
+ *                                  type: string
+ *                              data:
+ *                                  type: object
+ *                                  example: {}        
+ */
 router.delete("/:id", (req, res) => {
     const { id } = req.params;
     const response = service.deleteUser(id);
