@@ -9,6 +9,8 @@ const service = new usersServices();
  * /users:
  *  get:
  *      summary: Obtiene una lista de usuarios
+ *      tags:
+ *          -   Users
  *      responses:
  *          200:
  *              description: Lista de usuarios
@@ -28,7 +30,7 @@ const service = new usersServices();
  *                                              type: number
  *                                          name:
  *                                              type: string
- *                                          userName:
+ *                                          username:
  *                                              type: string
  *                                          password:
  *                                              type: string
@@ -47,6 +49,8 @@ router.get("/", (req, res) => {
  * /users/{id}:
  *  get:
  *      summary: Obtiene un usuario por id
+ *      tags:
+ *          -   Users
  *      parameters:
  *          -   in: path
  *              name: id
@@ -71,7 +75,7 @@ router.get("/", (req, res) => {
  *                                          type: number
  *                                      name:
  *                                          type: string
- *                                      userName:
+ *                                      username:
  *                                          type: string
  *                                      password:
  *                                          type: string
@@ -91,6 +95,8 @@ router.get("/:id", (req, res) => {
  * /users:
  *  post:
  *      summary: Crear un nuevo usuario
+ *      tags:
+ *          -   Users
  *      requestBody:
  *          required: true
  *          content:
@@ -100,7 +106,7 @@ router.get("/:id", (req, res) => {
  *                      properties:
  *                          name:
  *                              type: string
- *                          userName:
+ *                          username:
  *                              type: string
  *                          password:
  *                              type: string
@@ -121,7 +127,7 @@ router.get("/:id", (req, res) => {
  *                                          type: number
  *                                      name:
  *                                          type: string   
- *                                      userName:
+ *                                      username:
  *                                          type: string
  *                                      password:
  *                                          type: string
@@ -152,6 +158,8 @@ router.post("/", (req, res) => {
  * /users/{id}:
  *  patch:
  *      summary: Actualizar valores de un usuario por ID
+ *      tags:
+ *          -   Users
  *      parameters:
  *          -   in: path
  *              name: id
@@ -168,7 +176,7 @@ router.post("/", (req, res) => {
  *                      properties:
  *                          name:
  *                              type: string
- *                          userName:
+ *                          username:
  *                              type: string
  *                          password:
  *                              type: string
@@ -189,7 +197,7 @@ router.post("/", (req, res) => {
  *                                          type: number
  *                                      name:
  *                                          type: string
- *                                      userName:
+ *                                      username:
  *                                          type: string
  *                                      password:
  *                                          type: string
@@ -221,6 +229,8 @@ router.patch("/:id", (req, res) => {
  * /users/{id}:
  *  delete:
  *      summary: Eliminar un usuario por ID
+ *      tags:
+ *          -   Users
  *      parameters:
  *          -   in: path
  *              name: id

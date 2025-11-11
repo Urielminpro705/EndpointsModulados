@@ -9,6 +9,8 @@ const service = new categoriesServices();
  * /categories:
  *  get:
  *      summary: Obtiene una lista de categorias
+ *      tags:
+ *          -   Categories
  *      responses:
  *          200:
  *              description: Lista de categorias
@@ -47,6 +49,8 @@ router.get("/", (req, res) => {
  * /categories/{id}:
  *  get:
  *      summary: Obtiene una categoria por id
+ *      tags:
+ *          -   Categories
  *      parameters:
  *          -   in: path
  *              name: id
@@ -91,6 +95,8 @@ router.get("/:id", (req, res) => {
  * /categories:
  *  post:
  *      summary: Crear una nueva categoria
+ *      tags:
+ *          -   Categories
  *      requestBody:
  *          required: true
  *          content:
@@ -152,6 +158,8 @@ router.post("/", (req, res) => {
  * /categories/{id}:
  *  patch:
  *      summary: Actualizar valores de una categoria por ID
+ *      tags:
+ *          -   Categories
  *      parameters:
  *          -   in: path
  *              name: id
@@ -221,6 +229,8 @@ router.patch("/:id", (req, res) => {
  * /categories/{id}:
  *  delete:
  *      summary: Eliminar una categoria por ID
+ *      tags:
+ *          -   Categories
  *      parameters:
  *          -   in: path
  *              name: id

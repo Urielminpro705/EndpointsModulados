@@ -9,6 +9,8 @@ const service = new productsServices();
  * /products:
  *  get:
  *      summary: Obtiene una lista de productos
+ *      tags:
+ *          -   Products
  *      parameters:
  *          -   in: query
  *              name: category
@@ -82,6 +84,8 @@ router.get("/", (req, res) => {
  * /products/{id}:
  *  get:
  *      summary: Obtiene un producto por ID
+ *      tags:
+ *          -   Products
  *      parameters:
  *          -   in: path
  *              name: id
@@ -134,6 +138,8 @@ router.get("/:id", (req, res) => {
  * /products:
  *  post:
  *      summary: Crear un nuevo producto
+ *      tags:
+ *          -   Products
  *      requestBody:
  *          required: true
  *          content:
@@ -219,8 +225,10 @@ router.post("/", (req, res) => {
 /**
  * @swagger
  * /products/{id}:
- *  post:
+ *  patch:
  *      summary: Actualizar un producto por ID
+ *      tags:
+ *          -   Products
  *      parameters:
  *          -   in: path
  *              name: id
@@ -304,6 +312,8 @@ router.patch("/:id", (req, res) => {
  * /products/{id}:
  *  delete:
  *      summary: Eliminar un producto por ID
+ *      tags:
+ *          -   Products
  *      parameters:
  *          -   in: path
  *              name: id

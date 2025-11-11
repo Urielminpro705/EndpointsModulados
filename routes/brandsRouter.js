@@ -9,6 +9,8 @@ const service = new brandsServices();
  * /brands:
  *  get:
  *      summary: Obtiene una lista de marcas
+ *      tags:
+ *          -   Brands
  *      responses:
  *          200:
  *              description: Lista de marcas
@@ -47,6 +49,8 @@ router.get("/", (req, res) => {
  * /brands/{id}:
  *  get:
  *      summary: Obtiene una marca por id
+ *      tags:
+ *          -   Brands
  *      parameters:
  *          -   in: path
  *              name: id
@@ -91,6 +95,8 @@ router.get("/:id", (req, res) => {
  * /brands:
  *  post:
  *      summary: Crear una nueva marca
+ *      tags:
+ *          -   Brands
  *      requestBody:
  *          required: true
  *          content:
@@ -152,6 +158,8 @@ router.post("/", (req, res) => {
  * /brands/{id}:
  *  patch:
  *      summary: Actualizar valores de una marca por ID
+ *      tags:
+ *          -   Brands
  *      parameters:
  *          -   in: path
  *              name: id
@@ -221,6 +229,8 @@ router.patch("/:id", (req, res) => {
  * /brands/{id}:
  *  delete:
  *      summary: Eliminar una marca por ID
+ *      tags:
+ *          -   Brands
  *      parameters:
  *          -   in: path
  *              name: id
