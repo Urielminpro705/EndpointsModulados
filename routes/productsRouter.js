@@ -48,7 +48,7 @@ const service = new productsServices();
  *                                          description: 
  *                                              type: string
  *                                          price: 
- *                                              type: string
+ *                                              type: number
  *                                          stock: 
  *                                              type: number
  *                                          categoryId: 
@@ -70,8 +70,8 @@ const service = new productsServices();
  *                                      type: object
  *                                      example: {}
  */
-router.get("/", (req, res) => {
-    const response = service.getAllProducts(req.query);
+router.get("/", async (req, res) => {
+    const response = await service.getAllProducts(req.query);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -115,7 +115,7 @@ router.get("/", (req, res) => {
  *                                      description: 
  *                                          type: string
  *                                      price: 
- *                                          type: string
+ *                                          type: number
  *                                      stock: 
  *                                          type: number
  *                                      categoryId: 
@@ -154,7 +154,7 @@ router.get("/:id", (req, res) => {
  *                          description: 
  *                              type: string
  *                          price: 
- *                              type: string
+ *                              type: number
  *                          stock: 
  *                              type: number
  *                          categoryId: 
@@ -181,7 +181,7 @@ router.get("/:id", (req, res) => {
  *                                      description: 
  *                                          type: string
  *                                      price: 
- *                                          type: string
+ *                                          type: number
  *                                      stock: 
  *                                          type: number
  *                                      categoryId: 
@@ -213,8 +213,8 @@ router.get("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}                     
  */
-router.post("/", (req, res) => {
-    const response = service.createProduct(req.body);
+router.post("/", async (req, res) => {
+    const response = await service.createProduct(req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -250,7 +250,7 @@ router.post("/", (req, res) => {
  *                          description: 
  *                              type: string
  *                          price: 
- *                              type: string
+ *                              type: number
  *                          stock: 
  *                              type: number
  *                          categoryId: 
@@ -277,7 +277,7 @@ router.post("/", (req, res) => {
  *                                      description: 
  *                                          type: string
  *                                      price: 
- *                                          type: string
+ *                                          type: number
  *                                      stock: 
  *                                          type: number
  *                                      categoryId: 
@@ -297,9 +297,9 @@ router.post("/", (req, res) => {
  *                                  type: object
  *                                  example: {}            
  */
-router.patch("/:id", (req, res) => {
+router.patch("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.updateProduct(id, req.body);
+    const response = await service.updateProduct(id, req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -349,9 +349,9 @@ router.patch("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}  
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.deleteProduct(id);
+    const response = await service.deleteProduct(id);
 
     res.status(response.statusCode).json({
         message: response.message,

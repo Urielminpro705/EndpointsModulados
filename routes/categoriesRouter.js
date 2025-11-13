@@ -35,8 +35,8 @@ const service = new categoriesServices();
  *                                          active:
  *                                              type: boolean
  */
-router.get("/", (req, res) => {
-    const response = service.getAllCategories();
+router.get("/", async (req, res) => {
+    const response = await service.getAllCategories();
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -80,9 +80,9 @@ router.get("/", (req, res) => {
  *                                      active:
  *                                          type: boolean
  */
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.getCategoryById(id);
+    const response = await service.getCategoryById(id);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -144,8 +144,8 @@ router.get("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}                            
  */
-router.post("/", (req, res) => {
-    const response = service.createCategory(req.body);
+router.post("/", async (req, res) => {
+    const response = await service.createCategory(req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -214,9 +214,9 @@ router.post("/", (req, res) => {
  *                                  type: object
  *                                  example: {}
  */
-router.patch("/:id", (req, res) => {
+router.patch("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.updateCategory(id, req.body);
+    const response = await service.updateCategory(id, req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -278,9 +278,9 @@ router.patch("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}        
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.deleteCategory(id);
+    const response = await service.deleteCategory(id);
 
     res.status(response.statusCode).json({
         message: response.message,

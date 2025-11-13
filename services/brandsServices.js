@@ -1,26 +1,50 @@
-const { brands, products } = require("../data/data");
+const Brand = require("../models/Brand");
+const Product = require("../models/Product");
 
 class brandsServices {
     getAllBrands () {
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: brands
-        }
+        return Brand.find()
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: []
+                }
+            })
     }
 
     getBrandById (id) {
-        const brand = brands.find(b => b.id === parseInt(id));
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: brand
-        }
+        return Brand.findOne({id: id})
+            .then(brand => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: brand
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
-    createBrand (newData) {
+    async createBrand (newData) {
         const { brandName, description, active } = newData;
 
         const missingFields = [];
@@ -38,52 +62,79 @@ class brandsServices {
             }
         }
 
-        const newBrand = {
-            id: brands.length + 1,
+        const numRegistros = await Brand.countDocuments();
+
+        const newBrand = new Brand({
+            id: numRegistros + 1,
             brandName,
             description,
             active
-        }
+        });
 
-        brands.push(newBrand);
-
-        return {
-            succeded: true,
-            statusCode: 201,
-            message: "Brand created",
-            data: newBrand
-        }
+        return newBrand.save()
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 201,
+                    message: "Brand created",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
     updateBrand (id, newData) {
         const { brandName, description, active } = newData;
-        const brand = brands.find(b => b.id == id);
+        var brand = {}
 
-        if (brand) {
-            if (brandName) brand.brandName = brandName;
-            if (description) brand.description = description;
-            if (active) brand.active = active;
+        if (brandName) brand.brandName = brandName;
+        if (description) brand.description = description;
+        if (active) brand.active = active;
 
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Updated",
-                data: brand
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Brand Not Found',
-                data: {}
-            }
-        }
+        return Brand.updateOne(
+            { id },
+            { $set: brand }
+        )
+            .then(data => {
+                if (data.matchedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Updated",
+                        data: brand
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Brand Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
-    deleteBrand (id) {
-        const brandIndex = brands.findIndex(b => b.id == id);
-
-        if(!this.canBeDeleted(id)) {
+    async deleteBrand (id) {
+        const canBeDeleted = await this.canBeDeleted(id);
+        
+        if(!canBeDeleted) {
             return {
                 succeded: false,
                 statusCode: 409,
@@ -92,27 +143,43 @@ class brandsServices {
             }
         }
 
-        if(brandIndex !== -1) {
-            brands.splice(brandIndex, 1);
-
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Deleted",
-                data: {id}
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Brand Not Found',
-                data: {}
-            }
-        }
+        return Brand.deleteOne({ id })
+            .then(data => {
+                if (data.deletedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Deleted",
+                        data: {id}
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Brand Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
     canBeDeleted(brandId) {
-        return !products.some(product => product.brandId == brandId);
+        return Product.findOne({ brandId: brandId })
+            .then(data => {
+                return !data;
+            })
+            .catch(err => {
+                return false;
+            })
     }
 }
 

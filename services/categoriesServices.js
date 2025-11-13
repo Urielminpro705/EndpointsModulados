@@ -1,26 +1,50 @@
-const { categories, products } = require("../data/data");
+const Category = require("../models/Category");
+const Product = require("../models/Product");
 
 class categoriesServices {
     getAllCategories () {
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: categories
-        }
+        return Category.find()
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: []
+                }
+            })
     }
 
     getCategoryById (id) {
-        const category = categories.find(c => c.id === parseInt(id));
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: category
-        }
+        return Category.findOne({ id })
+            .then(category => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: category
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
-    createCategory (newData) {
+    async createCategory (newData) {
         const { categoryName, description, active } = newData;
     
         const missingFields = [];
@@ -38,52 +62,80 @@ class categoriesServices {
             }
         }
 
+        const numRegistros = await Brand.countDocuments();
+
         const newCategory = {
-            id: categories.length + 1,
+            id: numRegistros + 1,
             categoryName,
             description,
             active
         }
 
-        categories.push(newCategory);
+        return Category.create(newCategory)
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 201,
+                    message: "Category created",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
 
-        return {
-            succeded: true,
-            statusCode: 201,
-            message: "Category created",
-            data: newCategory
-        }
     }
 
     updateCategory (id, newData) {
         const { categoryName, description, active } = newData;
-        const category = categories.find(c => c.id == id);
+        var category = {}
 
-        if (category) {
-            if (categoryName) category.categoryName = categoryName;
-            if (description) category.description = description;
-            if (active) category.active = active;
+        if (categoryName) category.categoryName = categoryName;
+        if (description) category.description = description;
+        if (active) category.active = active;
 
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Updated",
-                data: category
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Category Not Found',
-                data: {}
-            }
-        }
+        return Category.updateOne(
+            { id },
+            { $set: category }
+        )
+            .then(data => {
+                if (data.matchedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Updated",
+                        data: category
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Category Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
-    deleteCategory (id) {
-        const categoryIndex = categories.findIndex(c => c.id == id);
-        
-        if(!this.canBeDeleted(id)) {
+    async deleteCategory (id) {
+        const canBeDeleted = await this.canBeDeleted(id);
+
+        if(!canBeDeleted) {
             return {
                 succeded: false,
                 statusCode: 409,
@@ -92,27 +144,43 @@ class categoriesServices {
             }
         }
     
-        if(categoryIndex !== -1) {
-            categories.splice(categoryIndex, 1);
-    
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Deleted",
-                data: {id}
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Category Not Found',
-                data: {}
-            }
-        }
+        return Category.deleteOne({ id })
+            .then(data => {
+                if (data.deletedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Deleted",
+                        data: {id}
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Category Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
     canBeDeleted(categoryId) {
-        return !products.some(product => product.categoryId == categoryId);
+        return Product.findOne({ categoryId })
+            .then(data => {
+                return !data;
+            })
+            .catch(err => {
+                return false;
+            })
     }
 }
 

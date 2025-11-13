@@ -35,9 +35,8 @@ const service = new brandsServices();
  *                                          active:
  *                                              type: boolean
  */
-router.get("/", (req, res) => {
-    const response = service.getAllBrands();
-
+router.get("/", async (req, res) => {
+    const response = await service.getAllBrands();
     res.status(response.statusCode).json({
         message: response.message,
         data: response.data
@@ -80,9 +79,9 @@ router.get("/", (req, res) => {
  *                                      active:
  *                                          type: boolean
  */
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.getBrandById(id);
+    const response = await service.getBrandById(id);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -144,8 +143,8 @@ router.get("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}                            
  */
-router.post("/", (req, res) => {
-    const response = service.createBrand(req.body);
+router.post("/", async (req, res) => {
+    const response = await service.createBrand(req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -214,9 +213,9 @@ router.post("/", (req, res) => {
  *                                  type: object
  *                                  example: {}
  */
-router.patch("/:id", (req, res) => {
+router.patch("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.updateBrand(id, req.body);
+    const response = await service.updateBrand(id, req.body);
 
     res.status(response.statusCode).json({
         message: response.message,
@@ -278,9 +277,9 @@ router.patch("/:id", (req, res) => {
  *                                  type: object
  *                                  example: {}        
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     const { id } = req.params;
-    const response = service.deleteBrand(id)
+    const response = await service.deleteBrand(id)
 
     res.status(response.statusCode).json({
         message: response.message,

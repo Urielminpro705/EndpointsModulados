@@ -1,58 +1,84 @@
-const { products, brands, categories } = require("../data/data");
+const Product = require("../models/Product");
+const Brand = require("../models/Brand");
+const Category = require("../models/Category");
 
 class productsServices {
-    getAllProducts (query) {
+    async getAllProducts (query) {
         const { category, brand } = query;
-        let result = products;
+        let filtros = {};
     
-        if (brand) {
-            const brandId = this.obtenerBrandId(brand);
-            if (brandId) {
-                result = products.filter(p => p.brandId === brandId);
-            } else {
-                return {
-                    succeded: false,
-                    statusCode: 404,
-                    message: 'Brand Not Found',
-                    data: {}
+        try {
+            if (brand) {
+                const brandId = await this.obtenerBrandId(brand);
+                if (brandId) {
+                    filtros.brandId = brandId;
+                    // result = await Product.find({ brandId });
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Brand Not Found',
+                        data: {}
+                    }
                 }
             }
-        }
-    
-        if (category) {
-            const categoryId = this.obtenerCategoryId(category);
-            if (categoryId) {
-                result = products.filter(p => p.categoryId === categoryId);
-            } else {
-                return {
-                    succeded: false,
-                    statusCode: 404,
-                    message: 'Category Not Found',
-                    data: {}
+        
+            if (category) {
+                const categoryId = await this.obtenerCategoryId(category);
+                if (categoryId) {
+                    filtros.categoryId = categoryId;
+                    // result = await Product.find({ categoryId });
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Category Not Found',
+                        data: {}
+                    }
                 }
             }
-        }
-    
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: result
+        
+            const result = await Product.find(filtros);
+            
+            return {
+                succeded: true,
+                statusCode: 200,
+                message: "OK",
+                data: result
+            }
+        } catch(err) {
+            console.log(err);
+            return {
+                succeded: false,
+                statusCode: 500,
+                message: "Error interno del servidor",
+                data: []
+            }
         }
     }
 
     getProductById (id) {
-        const product = products.find(p => p.id === parseInt(id));
-        
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: product
-        }
+        return Product.findOne({ id })
+            .then(product => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: product
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
-    createProduct (newData) {
+    async createProduct (newData) {
         const { image, productName, description, price, stock, categoryId, brandId } = newData;
         
         const missingFields = [];
@@ -73,17 +99,8 @@ class productsServices {
                 data: {}
             }
         }
-    
-        if (!this.doesBrandExist(brandId)) {
-            return {
-                succeded: true,
-                statusCode: 404,
-                message: "brandId does not exist",
-                data: {}
-            }
-        }
-    
-        if (!this.doesCategoryExist(categoryId)) {
+        
+        if (!(await this.doesCategoryExist(categoryId))) {
             return {
                 succeded: true,
                 statusCode: 404,
@@ -91,9 +108,20 @@ class productsServices {
                 data: {}
             }
         }
+
+        if (!(await this.doesBrandExist(brandId))) {
+            return {
+                succeded: true,
+                statusCode: 404,
+                message: "brandId does not exist",
+                data: {}
+            }
+        }
+
+        const numRegistros = await Brand.countDocuments();
     
         const newProduct = {
-            id: products.length + 1,
+            id: numRegistros + 1,
             image,
             productName,
             description,
@@ -103,21 +131,31 @@ class productsServices {
             brandId
         }
     
-        products.push(newProduct);
-    
-        return {
-            succeded: true,
-            statusCode: 201,
-            message: "Product created",
-            data: newProduct
-        }
+        return Product.create(newProduct)
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 201,
+                    message: "Product created",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
-    updateProduct (id, newData) {
+    async updateProduct (id, newData) {
         const { image, productName, description, price, stock, categoryId, brandId } = newData;
-        const product = products.find(p => p.id == id);
+        var product = {}
 
-        if (brandId && !this.doesBrandExist(brandId)) {
+        if (brandId && !(await this.doesBrandExist(brandId))) {
             return {
                 succeded: false,
                 statusCode: 404,
@@ -126,7 +164,7 @@ class productsServices {
             }
         }
 
-        if (categoryId && !this.doesCategoryExist(categoryId)) {
+        if (categoryId && !(await this.doesCategoryExist(categoryId))) {
             return {
                 succeded: false,
                 statusCode: 404,
@@ -134,71 +172,119 @@ class productsServices {
                 data: {}
             }
         }
+        
+        if (image) product.image = image;
+        if (productName) product.productName = productName;
+        if (description) product.description = description;
+        if (price) product.price = price;
+        if (stock) product.stock = stock;
+        if (categoryId) product.categoryId = categoryId;
+        if (brandId) product.brandId = brandId;
 
-        if (product) {
-            if (image) product.image = image;
-            if (productName) product.productName = productName;
-            if (description) product.description = description;
-            if (price) product.price = price;
-            if (stock) product.stock = stock;
-            if (categoryId) product.categoryId = categoryId;
-            if (brandId) product.brandId = brandId;
-
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Updated",
-                data: product
-            }
-            
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Product Not Found',
-                data: {}
-            }
-        }
+        return Product.updateOne(
+            { id },
+            { $set: product }
+        )
+            .then(data => {
+                if (data.matchedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Updated",
+                        data: product
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Product Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
     deleteProduct (id) {
-        const productIndex = products.findIndex(p => p.id == id);
-
-        if(productIndex !== -1) {
-            products.splice(productIndex, 1);
-
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Deleted",
-                data: {id}
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'Product Not Found',
-                data: {}
-            }
-        }
+        return Product.deleteOne({ id })
+            .then(data => {
+                if (data.deletedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Deleted",
+                        data: {id}
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'Product Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            })
     }
 
     obtenerBrandId(brandName) {
-        const brand = brands.find(b => b.brandName === brandName);
-        return brand ? brand.id : null;
+        return Brand.findOne({ brandName })
+            .then(data => {
+                return data ? data.id : null;
+            })
+            .catch(err => {
+                console.log(err);
+                return null;
+            });
     }
 
     obtenerCategoryId(categoryName) {
-        const category = categories.find(c => c.categoryName === categoryName);
-        return category ? category.id : null;
+        return Category.findOne({ categoryName })
+            .then(data => {
+                return data ? data.id : null;
+            })
+            .catch(err => {
+                console.log(err);
+                return null;
+            });
     }
 
     doesBrandExist(brandId) {
-        return brands.some(b => b.id === brandId);
+        return Brand.findOne({ id: brandId })
+            .then(brand => {
+                return brand ? true : false;
+            })
+            .catch(err => {
+                console.log(err);
+                return false;
+            });
     }
 
     doesCategoryExist(categoryId) {
-        return categories.some(c => c.id === categoryId);
+        return Category.findOne({ id: categoryId })
+            .then(category => {
+                return category ? true : false;
+            })
+            .catch(err => {
+                console.log(err);
+                return false;
+            });
     }
 }
 

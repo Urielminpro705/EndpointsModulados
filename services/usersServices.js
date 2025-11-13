@@ -1,26 +1,49 @@
-const { users } = require("../data/data");
+const User = require("../models/User");
 
 class usersServices {
     getAllUsers () {
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: users
-        }
+        return User.find()
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: []
+                }
+            });
     }
 
     getUserById (id) {
-        const user = users.find(u => u.id === parseInt(id));
-        return {
-            succeded: true,
-            statusCode: 200,
-            message: "OK",
-            data: user
-        }
+        return User.findOne({ id })
+            .then(user => {
+                return {
+                    succeded: true,
+                    statusCode: 200,
+                    message: "OK",
+                    data: user
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
-    createUser (body) {
+    async createUser (body) {
         const { name, username, password } = body;
 
         const missingFields = [];
@@ -38,68 +61,103 @@ class usersServices {
             } 
         }
 
+        const numRegistros = await Brand.countDocuments();
+
         const newUser = {
-            id: users.length + 1,
+            id: numRegistros + 1,
             name,
             username,
             password
         }
 
-        users.push(newUser);
-
-        return {
-            succeded: true,
-            statusCode: 201,
-            message: "User created",
-            data: newUser
-        }
+        return User.create(newUser)
+            .then(data => {
+                return {
+                    succeded: true,
+                    statusCode: 201,
+                    message: "User created",
+                    data: data
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
     updateUser (id, newData) {
         const { name, username, password } = newData;
-        const user = users.find(u => u.id == id);
+        const user = {}
 
-        if (user) {
-            if (name) user.name = name;
-            if (username) user.username = username;
-            if (password) user.password = password;
+        if (name) user.name = name;
+        if (username) user.username = username;
+        if (password) user.password = password;
 
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Updated",
-                data: user
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'User Not Found',
-                data: {}
-            }
-        }
+        return User.updateOne(
+            { id },
+            { $set: user }
+        )
+            .then(data => {
+                if (data.matchedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Updated",
+                        data: user
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'User Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 
     deleteUser (id) {
-        const userIndex = users.findIndex(u => u.id == id);
-
-        if(userIndex !== -1) {
-            users.splice(userIndex, 1);
-            
-            return {
-                succeded: true,
-                statusCode: 200,
-                message: "Deleted",
-                data: {id}
-            }
-        } else {
-            return {
-                succeded: false,
-                statusCode: 404,
-                message: 'User Not Found',
-                data: {}
-            }
-        }
+        return User.deleteOne({ id })
+            .then(data => {
+                if (data.deletedCount > 0) {
+                    return {
+                        succeded: true,
+                        statusCode: 200,
+                        message: "Deleted",
+                        data: {id}
+                    }
+                } else {
+                    return {
+                        succeded: false,
+                        statusCode: 404,
+                        message: 'User Not Found',
+                        data: {}
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return {
+                    succeded: false,
+                    statusCode: 500,
+                    message: "Error interno del servidor",
+                    data: {}
+                }
+            });
     }
 }
 
